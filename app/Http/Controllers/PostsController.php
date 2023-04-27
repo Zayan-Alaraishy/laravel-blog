@@ -7,22 +7,40 @@ use App\Models\Post;
 use App\Models\User;
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResource;
+use App\Services\PostService;
+
 
 
 class PostsController extends Controller
 {
+    protected $postService;
+
+    /**
+     * PostController Constructor
+     *
+     * @param PostService $postService
+     *
+     */
+    public function __construct(PostService $postService)
+    {
+        $this->postService = $postService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        $posts = $this->postService->getPostsWithComments();
+        $commentable = new Post();
+        return view('blog.index', compact('posts', 'commentable'));
         // return view('blog.index')
         //     ->with('posts', Post::orderBy('updated_at', 'DESC')->get());
 
         //eager loading
-        $posts = Post::with('comments')->orderBy('created_at', 'desc')->get();
-        $commentable = new Post();
-        return view('blog.index', compact('posts', 'commentable'));
+        // $posts = Post::with('comments')->orderBy('created_at', 'desc')->get();
+        // $commentable = new Post();
+        // return view('blog.index', compact('posts', 'commentable'));
 
         // $posts = Post::all();
         // return PostResource::collection($posts);
@@ -41,16 +59,26 @@ class PostsController extends Controller
      */
     public function store(PostRequest $request)
     {
-        // $request->validate();
+        $message = '';
 
-        Post::create([
-            'title' => $request->input('title'),
-            'text' => $request->input('text'),
-            'user_id' => auth()->user()->id
-        ]);
+        try {
+            $message = 'Your post has been added!';
+        } catch (\Exception $e) {
+            $message = 'Failed to create this post!';
+        }
 
         return redirect('/posts')
-            ->with('message', 'Your post has been added!');
+            ->with('message', $message);
+        // $request->validate();
+
+        // Post::create([
+        //     'title' => $request->input('title'),
+        //     'text' => $request->input('text'),
+        //     'user_id' => auth()->user()->id
+        // ]);
+
+
+
 
         // $validated = $request->validated();
 
@@ -84,6 +112,7 @@ class PostsController extends Controller
      */
     public function edit(string $id)
     {
+
         return view('blog.edit')
             ->with('post', Post::where('id', $id)->first());
     }
@@ -93,16 +122,29 @@ class PostsController extends Controller
      */
     public function update(PostRequest $request, string $id)
     {
+        $message = '';
 
-        Post::where('id', $id)
-            ->update([
-                'title' => $request->input('title'),
-                'text' => $request->input('text'),
-                'user_id' => auth()->user()->id
-            ]);
+        try {
+            $this->postService->updatePost($request, $id);
+
+            $message = 'Your post has been updated!';
+        } catch (Exception $e) {
+            $message = 'Failed to update the post!';
+        }
 
         return redirect('/posts')
-            ->with('message', 'Your post has been updated!');
+            ->with('message', $message);
+
+
+        // Post::where('id', $id)
+        //     ->update([
+        //         'title' => $request->input('title'),
+        //         'text' => $request->input('text'),
+        //         'user_id' => auth()->user()->id
+        //     ]);
+
+        // return redirect('/posts')
+        //     ->with('message', 'Your post has been updated!');
     }
 
     /**
@@ -110,12 +152,24 @@ class PostsController extends Controller
      */
     public function destroy(string $id)
     {
-        $post = Post::where('id', $id);
-        $post->delete();
+        $message = '';
 
-        // request from the same page >> back
+        try {
+            $this->postService->deletePostById($id);
+            $message = "Your post has been deleted!";
+
+        } catch (Exception $e) {
+            $message = "Failed to delete this post!";
+        }
 
         return back()
-            ->with('message', 'Your post has been deleted!');
+            ->with('message', $message);
+        // $post = Post::where('id', $id);
+        // $post->delete();
+
+        // // request from the same page >> back
+
+        // return back()
+        //     ->with('message', 'Your post has been deleted!');
     }
 }
