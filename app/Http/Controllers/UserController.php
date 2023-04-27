@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
@@ -9,9 +10,25 @@ use Illuminate\Auth\Events\Registered;
 use App\Models\User;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Services\UserService;
+
 
 class UserController extends Controller
 {
+
+    protected $userService;
+
+    /**
+     * UserController Constructor
+     *
+     * @param UserService $userService
+     *
+     */
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function create()
     {
         return view('users.register');
@@ -20,22 +37,18 @@ class UserController extends Controller
     // Create New User
     public function store(RegisterRequest $request)
     {
-        //validate incoming user data
         // Create User
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-        ]);
+        $message = '';
 
+        try {
+            $this->userService->createAccount($request);
 
-        // Login
-        auth()->login($user);
+            $message = 'User created and logged in';
+        } catch (Exception $e) {
+            $message = 'Someting went wrong while creating your account';
+        }
 
-        event(new Registered($user));
-
-
-        return redirect('/home')->with('message', 'User created and logged in');
+        return redirect('/posts')->with('message', $message);
     }
 
     // Logout User
@@ -62,9 +75,6 @@ class UserController extends Controller
 
         if (auth()->attempt($user)) {
             $request->session()->regenerate();
-            // event(new Registered($user));
-
-
             return redirect('/posts')->with('message', 'You are now logged in!');
         }
 
