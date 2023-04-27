@@ -62,6 +62,7 @@ class PostsController extends Controller
         $message = '';
 
         try {
+            $this->postService->savePostData($request);
             $message = 'Your post has been added!';
         } catch (\Exception $e) {
             $message = 'Failed to create this post!';
