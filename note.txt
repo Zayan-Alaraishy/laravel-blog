@@ -1,0 +1,7 @@
+
+The link that works fine
+http://localhost:8000/email/verify/14/acd803f263e1276ee311ae0f355c601f31a43d12?expires=1682568001&signature=c287ab14672731449aba311580dfcc5e604dfbe63c5df2b36e7ceafe9132110b
+
+
+The link that doesn't work
+http://localhost/email/verify/13/aeb9bb07bd69d4f281134604aac410fa67edee1f?expires=1682567922&signature=32e70d09fc7cc317f6f1a4d3400bd8bdf3cc8e1095884d7d9038673479d20790

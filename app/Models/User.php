@@ -48,16 +48,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-/**
- * Send the queued email verification notification.
- *
- * @param  string  $token
- * @return void
- */
-// public function sendEmailVerificationNotification()
-// {
-//     $this->notify(new VerifyEmailQueued);
-// }
+    /**
+     * Send the queued email verification notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailQueued);
+    }
 
 // public function sendEmailVerificationNotification()
 // {
