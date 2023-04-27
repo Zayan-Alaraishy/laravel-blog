@@ -5,9 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CommentRequest;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use App\Services\CommentService;
 
 class CommentsController extends Controller
 {
+    protected $commentService;
+
+    public function __construct(CommentService $commentService)
+    {
+        $this->commentService = $commentService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -20,27 +27,30 @@ class CommentsController extends Controller
      * Show the form for creating a new resource.
      */
     // Display the form to create a new comment
-    public function create($commentable_id, $commentable_type)
-    {
-        $commentable = $commentable_type::find($commentable_id);
 
-        return view('comments.create', compact('commentable'));
-    }
+    // public function create($commentable_id, $commentable_type)
+    // {
+    //     $commentable = $commentable_type::find($commentable_id);
+
+    //     return view('comments.create', compact('commentable'));
+    // }
 
     // Store a new comment in the database
     public function store(CommentRequest $request, $commentable_id, $commentable_type)
     {
-
-        $commentable = $commentable_type::find($commentable_id);
-
-        $comment = new Comment();
-        $comment->body = $request['body'];
-        $comment->user_id = auth()->user()->id;
-        $comment->commentable_id = $commentable_id;
-        $comment->commentable_type = $commentable_type;
-        $comment->save();
+        $this->commentService->addComment($request, $commentable_id, $commentable_type);
 
         return back();
+        // $commentable = $commentable_type::find($commentable_id);
+
+        // $comment = new Comment();
+        // $comment->body = $request['body'];
+        // $comment->user_id = auth()->user()->id;
+        // $comment->commentable_id = $commentable_id;
+        // $comment->commentable_type = $commentable_type;
+        // $comment->save();
+
+        // return back();
 
 
         // Comment::create([
