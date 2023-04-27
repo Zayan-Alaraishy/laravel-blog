@@ -9,7 +9,7 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'text',  'user_id'];
+    protected $fillable = ['title', 'text', 'user_id'];
 
     public function user()
     {
@@ -17,6 +17,6 @@ class Post extends Model
     }
     public function comments()
     {
-        return $this->morphMany(Comment::class, 'commentable')->orderByDesc('created_at');
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

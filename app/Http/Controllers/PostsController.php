@@ -101,9 +101,10 @@ class PostsController extends Controller
      */
     public function show(string $id)
     {
-        return view('blog.show')
-            ->with('post', Post::where('id', $id)->first());
+        $post = $this->postService->getPostById($id);
 
+        return view('blog.show')
+            ->with('post', $post);
         // $post = Post::findOrFail($id);
         // return new PostResource($post);
     }
@@ -113,9 +114,10 @@ class PostsController extends Controller
      */
     public function edit(string $id)
     {
+        $post = $this->postService->getPostById($id);
 
         return view('blog.edit')
-            ->with('post', Post::where('id', $id)->first());
+            ->with('post', $post);
     }
 
     /**
@@ -126,7 +128,7 @@ class PostsController extends Controller
         $message = '';
 
         try {
-            $this->postService->updatePost($request, $id);
+            $this->postService->updatePostById($request, $id);
 
             $message = 'Your post has been updated!';
         } catch (Exception $e) {

@@ -3,8 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Post;
+use App\Interfaces\IPostRepository;
 
-class PostRepository
+class PostRepository implements IPostRepository
 {
     /**
      * @var Post
@@ -27,12 +28,18 @@ class PostRepository
             ->get();
     }
 
-    public function save($data)
+    public function getById($id)
+    {
+        $post = new $this->post;
+        return $post->findOrFail($id);
+    }
+
+    public function save($details)
     {
         $post = new $this->post;
 
-        $post->title = $data['title'];
-        $post->text = $data['text'];
+        $post->title = $details['title'];
+        $post->text = $details['text'];
         $post->user_id = auth()->user()->id;
 
         $post->save();
@@ -40,13 +47,13 @@ class PostRepository
         return $post->fresh();
     }
 
-    public function update($data, $id)
+    public function update($id, $newDetails)
     {
 
         $post = $this->post->find($id);
 
-        $post->title = $data['title'];
-        $post->text = $data['text'];
+        $post->title = $newDetails['title'];
+        $post->text = $newDetails['text'];
 
         $post->update();
 
